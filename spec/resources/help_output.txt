@@ -21,6 +21,7 @@ Available commands:
                        --textile : Create README.textile
   create-from-local => Create a new GitHub repository from the current local
                        repository
+                       % github create-from-local [repo_name]
                        --private: Create private repository
   fetch             => Fetch from a remote to a local branch.
   fetch_all         => Fetch all refs from a user
