@@ -9,6 +9,6 @@ describe "github help" do
     out = io.read rescue ''
     io.close
     
-    (File.read(example_output).to_s + "\n").should == out
+    (File.read(example_output).to_s).should == out
   end
 end

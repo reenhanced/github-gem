@@ -59,8 +59,8 @@ Available commands:
                        % github pull [user] [branch]
                        --merge: Automatically merge remote's changes into your
                          master.
-  pull-request      => Generate the text for a pull request.
-                       % github pull-request [user] [branch]
+  pull-request      => Generate a pull request to target owner and branch.
+                       % github pull-request [user] [branch] [title] [comment]
   search            => Search GitHub for the given repository name.
                        % github search [query]
   track             => Track another user's repository.

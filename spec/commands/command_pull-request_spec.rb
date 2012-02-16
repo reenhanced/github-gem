@@ -3,11 +3,11 @@ require File.expand_path("../command_helper", __FILE__)
 
 describe "github pull-request" do
   include CommandHelper
-  
+
   specify "pull-request should die with no args" do
     running :'pull-request' do
       setup_url_for
-      @command.should_receive(:die).with("Specify a user for the pull request").and_return { raise "Died" }
+      @command.should_receive(:die).with("usage: github pull-request [user] [branch] [title] [comment]").and_return { raise "Died" }
       self.should raise_error(RuntimeError)
     end
   end
