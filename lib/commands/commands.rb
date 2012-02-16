@@ -176,8 +176,11 @@ usage "github pull-request [user] [branch] [title] [comment]"
 command :'pull-request' do |user, branch, title, comment|
   if helper.project
     die "usage: github pull-request [user] [branch] [title] [comment]" if user.nil? || branch.nil? || title.nil? || comment.nil?
-    current_branch = sh "git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'"
-    sh "curl -F 'login=#{github_user}' -F 'token=#{github_token}' -d \"pull[base]=#{branch}\" -d \"pull[head]=#{github_user}:#{current_branch}\" -d \"pull[title]=#{title}\" -d \"pull[body]=#{comment}\" https://github.com/api/v2/json/pulls/#{user}/#{helper.project}"
+    user, branch = user.split('/', 2) if branch.nil?
+    branch ||= 'master'
+    GitHub.invoke(:track, user) unless helper.tracking?(user)
+
+    sh "curl -F 'login=#{github_user}' -F 'token=#{github_token}' -d \"pull[base]=#{branch}\" -d \"pull[head]=#{github_user}:#{helper.current_branch}\" -d \"pull[title]=#{title}\" -d \"pull[body]=#{comment}\" https://github.com/api/v2/json/pulls/#{user}/#{helper.project}"
   end
 end
 
