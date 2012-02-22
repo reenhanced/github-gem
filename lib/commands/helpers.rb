@@ -92,6 +92,10 @@ helper :ignore_shas do |shas|
   end
 end
 
+helper :get_first_commit_message do
+  `git log --pretty=format:"%s" --no-merges -n 1`.join(' ')
+end
+
 helper :get_commits do |rev_array|
   list = rev_array.select { |a| has_commit?(a) }.join(' ')
   `git log --pretty=format:"%H::%ae::%s::%ar::%ad" --no-merges #{list}`.split("\n").map { |a| a.split('::') }

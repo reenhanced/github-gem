@@ -48,4 +48,22 @@ describe "github pull-request" do
       @command.should_receive(:git_exec).with("request-pull user/branch origin")
     end
   end
+
+  specify "pull-request user branch title should generate a pull request with a custom title" do
+    running:'pull-request', "user", "branch", "title" do
+      setup_url_for
+      setup_remote :origin, :user => "kballard"
+      setup_remote :user
+      @command.should_receive(:git_exec).with("request-pull user/branch origin title")
+    end
+  end
+
+  specify "pull-request user branch title should generate a pull request with a custom title and comment" do
+    running:'pull-request', "user", "branch", "title", "comment" do
+      setup_url_for
+      setup_remote :origin, :user => "kballard"
+      setup_remote :user
+      @command.should_receive(:git_exec).with("request-pull user/branch origin title comment")
+    end
+  end
 end

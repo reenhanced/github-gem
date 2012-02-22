@@ -175,12 +175,14 @@ desc "Generate a pull request to target owner and branch."
 usage "github pull-request [user] [branch] [title] [comment]"
 command :'pull-request' do |user, branch, title, comment|
   if helper.project
-    die "usage: github pull-request [user] [branch] [title] [comment]" if user.nil? || branch.nil? || title.nil? || comment.nil?
+    die "usage: github pull-request [user] [branch] [title] [comment]" if user.nil?
     user, branch = user.split('/', 2) if branch.nil?
     branch ||= 'master'
+    title    = helper.get_first_commit_message if title.blank?
+    comment  = title if comment.blank?
     GitHub.invoke(:track, user) unless helper.tracking?(user)
 
-    sh "curl -F 'login=#{github_user}' -F 'token=#{github_token}' -d \"pull[base]=#{branch}\" -d \"pull[head]=#{github_user}:#{helper.current_branch}\" -d \"pull[title]=#{title}\" -d \"pull[body]=#{comment}\" https://github.com/api/v2/json/pulls/#{user}/#{helper.project}"
+    sh "curl -F 'login=#{github_user}' -F 'token=#{github_token}' -F \"pull[base]=#{branch}\" -F \"pull[head]=#{github_user}:#{helper.current_branch}\" -F \"pull[title]=#{title}\" -F \"pull[body]=#{comment}\" https://github.com/api/v2/json/pulls/#{user}/#{helper.project}"
   end
 end
 
