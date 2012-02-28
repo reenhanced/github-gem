@@ -17,6 +17,7 @@ describe "github pull-request" do
       setup_url_for
       setup_remote :origin, :user => "kballard"
       setup_remote :defunkt
+      @helper.should_receive(:get_first_commit_message).once
       GitHub.should_receive(:invoke).with(:track, "user").and_return { raise "Tracked" }
       self.should raise_error("Tracked")
     end
@@ -24,46 +25,54 @@ describe "github pull-request" do
 
   specify "pull-request user/branch should generate a pull request" do
     running :'pull-request', "user/branch" do
-      setup_url_for
-      setup_remote :origin, :user => "kballard"
-      setup_remote :user
-      @command.should_receive(:git_exec).with("request-pull user/branch origin")
+      setup_github_token
+      setup_url_for "origin", "user", "github-gem"
+      setup_remote "origin", :user => "user", :project => "github-gem"
+      setup_user_and_branch "user", "branch"
+      @helper.should_receive(:get_first_commit_message).once
+      @command.should_receive(:sh).with("curl -F 'login=drnic' -F 'token=MY_GITHUB_TOKEN' -F \"pull[base]=branch\" -F \"pull[head]=user:branch\" -F \"pull[title]=Commit\" -F \"pull[body]=Commit\" https://github.com/api/v2/json/pulls/user/github-gem")
     end
   end
 
   specify "pull-request user should generate a pull request with branch master" do
     running :'pull-request', "user" do
-      setup_url_for
-      setup_remote :origin, :user => "kballard"
-      setup_remote :user
-      @command.should_receive(:git_exec).with("request-pull user/master origin")
+      setup_github_token
+      setup_url_for "origin", "user", "github-gem"
+      setup_remote "origin", :user => "user", :project => "github-gem"
+      setup_user_and_branch "user", "branch"
+      @helper.should_receive(:get_first_commit_message).once
+      @command.should_receive(:sh).with("curl -F 'login=drnic' -F 'token=MY_GITHUB_TOKEN' -F \"pull[base]=master\" -F \"pull[head]=user:branch\" -F \"pull[title]=Commit\" -F \"pull[body]=Commit\" https://github.com/api/v2/json/pulls/user/github-gem")
     end
   end
 
   specify "pull-request user branch should generate a pull request" do
     running:'pull-request', "user", "branch" do
-      setup_url_for
-      setup_remote :origin, :user => "kballard"
-      setup_remote :user
-      @command.should_receive(:git_exec).with("request-pull user/branch origin")
+      setup_github_token
+      setup_url_for "origin", "user", "github-gem"
+      setup_remote "origin", :user => "user", :project => "github-gem"
+      setup_user_and_branch "user", "branch"
+      @helper.should_receive(:get_first_commit_message).once
+      @command.should_receive(:sh).with("curl -F 'login=drnic' -F 'token=MY_GITHUB_TOKEN' -F \"pull[base]=branch\" -F \"pull[head]=user:branch\" -F \"pull[title]=Commit\" -F \"pull[body]=Commit\" https://github.com/api/v2/json/pulls/user/github-gem")
     end
   end
 
   specify "pull-request user branch title should generate a pull request with a custom title" do
     running:'pull-request', "user", "branch", "title" do
-      setup_url_for
-      setup_remote :origin, :user => "kballard"
-      setup_remote :user
-      @command.should_receive(:git_exec).with("request-pull user/branch origin title")
+      setup_github_token
+      setup_url_for "origin", "user", "github-gem"
+      setup_remote "origin", :user => "user", :project => "github-gem"
+      setup_user_and_branch "user", "branch"
+      @command.should_receive(:sh).with("curl -F 'login=drnic' -F 'token=MY_GITHUB_TOKEN' -F \"pull[base]=branch\" -F \"pull[head]=user:branch\" -F \"pull[title]=title\" -F \"pull[body]=title\" https://github.com/api/v2/json/pulls/user/github-gem")
     end
   end
 
   specify "pull-request user branch title should generate a pull request with a custom title and comment" do
     running:'pull-request', "user", "branch", "title", "comment" do
-      setup_url_for
-      setup_remote :origin, :user => "kballard"
-      setup_remote :user
-      @command.should_receive(:git_exec).with("request-pull user/branch origin title comment")
+      setup_github_token
+      setup_url_for "origin", "user", "github-gem"
+      setup_remote "origin", :user => "user", :project => "github-gem"
+      setup_user_and_branch "user", "branch"
+      @command.should_receive(:sh).with("curl -F 'login=drnic' -F 'token=MY_GITHUB_TOKEN' -F \"pull[base]=branch\" -F \"pull[head]=user:branch\" -F \"pull[title]=title\" -F \"pull[body]=comment\" https://github.com/api/v2/json/pulls/user/github-gem")
     end
   end
 end

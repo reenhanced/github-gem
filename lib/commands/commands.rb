@@ -178,11 +178,11 @@ command :'pull-request' do |user, branch, title, comment|
     die "usage: github pull-request [user] [branch] [title] [comment]" if user.nil?
     user, branch = user.split('/', 2) if branch.nil?
     branch ||= 'master'
-    title    = helper.get_first_commit_message if title.blank?
-    comment  = title if comment.blank?
+    title    = helper.get_first_commit_message || "Commit" if title.nil?
+    comment  = title if comment.nil?
     GitHub.invoke(:track, user) unless helper.tracking?(user)
 
-    sh "curl -F 'login=#{github_user}' -F 'token=#{github_token}' -F \"pull[base]=#{branch}\" -F \"pull[head]=#{github_user}:#{helper.current_branch}\" -F \"pull[title]=#{title}\" -F \"pull[body]=#{comment}\" https://github.com/api/v2/json/pulls/#{user}/#{helper.project}"
+    sh "curl -F 'login=#{github_user}' -F 'token=#{github_token}' -F \"pull[base]=#{branch}\" -F \"pull[head]=#{user}:#{helper.branch_name}\" -F \"pull[title]=#{title}\" -F \"pull[body]=#{comment}\" https://github.com/api/v2/json/pulls/#{user}/#{helper.project}"
   end
 end
 

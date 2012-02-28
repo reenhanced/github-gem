@@ -63,6 +63,7 @@ helper :resolve_commits do |treeish|
   else
     # standard in
     puts 'reading from stdin...'
+
     commits = $stdin.read.split("\n")
   end
   commits.select { |a| a.size == 40 } # only the shas, not the ^SHAs
@@ -93,7 +94,7 @@ helper :ignore_shas do |shas|
 end
 
 helper :get_first_commit_message do
-  `git log --pretty=format:"%s" --no-merges -n 1`.join(' ')
+  `git log --pretty=format:"%s" --no-merges -n 1`
 end
 
 helper :get_commits do |rev_array|
