@@ -173,9 +173,11 @@ end
 
 desc "Generate a pull request to target owner and branch."
 usage "github pull-request [user] [branch] [title] [comment]"
+usage "github pull-request [user]"
+usage "github pull-request [user]/[branch]"
 command :'pull-request' do |user, branch, title, comment|
   if helper.project
-    die "usage: github pull-request [user] [branch] [title] [comment]" if user.nil?
+    die "Specify a user for the pull request" if user.nil?
     user, branch = user.split('/', 2) if branch.nil?
     branch ||= 'master'
     title    = helper.get_first_commit_message || "Commit" if title.nil?

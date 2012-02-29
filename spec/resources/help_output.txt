@@ -61,6 +61,8 @@ Available commands:
                          master.
   pull-request      => Generate a pull request to target owner and branch.
                        % github pull-request [user] [branch] [title] [comment]
+                       % github pull-request [user]
+                       % github pull-request [user]/[branch]
   search            => Search GitHub for the given repository name.
                        % github search [query]
   track             => Track another user's repository.
