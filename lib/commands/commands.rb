@@ -184,7 +184,7 @@ command :'pull-request' do |user, branch, title, comment|
     comment  = title if comment.nil?
     GitHub.invoke(:track, user) unless helper.tracking?(user)
 
-    sh "curl -F 'login=#{github_user}' -F 'token=#{github_token}' -F \"pull[base]=#{branch}\" -F \"pull[head]=#{user}:#{helper.branch_name}\" -F \"pull[title]=#{title}\" -F \"pull[body]=#{comment}\" https://github.com/api/v2/json/pulls/#{user}/#{helper.project}"
+    pull_request = sh "curl -F 'login=#{github_user}' -F 'token=#{github_token}' -F \"pull[base]=#{branch}\" -F \"pull[head]=#{user}:#{helper.branch_name}\" -F \"pull[title]=#{title}\" -F \"pull[body]=#{comment}\" https://github.com/api/v2/json/pulls/#{user}/#{helper.project}"
   end
 end
 

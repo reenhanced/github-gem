@@ -23,6 +23,44 @@ describe "github pull-request" do
     end
   end
 
+  specify "pull-request user should notify if pull request already exists" do
+    running :'pull-request', "user" do
+      setup_github_token
+      setup_url_for "origin", "user", "github-gem"
+      setup_remote "origin", :user => "user", :project => "github-gem"
+      setup_user_and_branch "user", "branch"
+      @helper.should_receive(:get_first_commit_message)
+      @command.should_receive(:sh).with("curl -F 'login=drnic' -F 'token=MY_GITHUB_TOKEN' -F \"pull[base]=master\" -F \"pull[head]=user:branch\" -F \"pull[title]=Commit\" -F \"pull[body]=Commit\" https://github.com/api/v2/json/pulls/user/github-gem")
+      running :'pull-request', "user" do
+        @helper.should_receive(:get_first_commit_message)
+        @command.should_receive(:sh).with("curl -F 'login=drnic' -F 'token=MY_GITHUB_TOKEN' -F \"pull[base]=master\" -F \"pull[head]=user:branch\" -F \"pull[title]=Commit\" -F \"pull[body]=Commit\" https://github.com/api/v2/json/pulls/user/github-gem")
+        @command.stdout.should == "A pull request already exists for user:branch"
+      end
+    end
+  end
+
+  specify "pull-request user should notify if pull request was successfull" do
+    running :'pull-request', "user" do
+      setup_url_for
+      setup_remote :origin, :user => "kballard"
+      setup_remote :defunkt
+      @helper.should_receive(:get_first_commit_message).once
+      GitHub.should_receive(:invoke).with(:track, "user").and_return { raise "Tracked" }
+      self.should raise_error("Tracked")
+    end
+  end
+
+  specify "pull-request user should generate a pull request" do
+    running :'pull-request', "user" do
+      setup_github_token
+      setup_url_for "origin", "user", "github-gem"
+      setup_remote "origin", :user => "user", :project => "github-gem"
+      setup_user_and_branch "user", "branch"
+      @helper.should_receive(:get_first_commit_message).once
+      @command.should_receive(:sh).with("curl -F 'login=drnic' -F 'token=MY_GITHUB_TOKEN' -F \"pull[base]=master\" -F \"pull[head]=user:branch\" -F \"pull[title]=Commit\" -F \"pull[body]=Commit\" https://github.com/api/v2/json/pulls/user/github-gem")
+    end
+  end
+
   specify "pull-request user/branch should generate a pull request" do
     running :'pull-request', "user/branch" do
       setup_github_token
