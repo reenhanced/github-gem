@@ -171,16 +171,20 @@ command :clone do |user, repo, dir|
   end
 end
 
-desc "Generate the text for a pull request."
-usage "github pull-request [user] [branch]"
-command :'pull-request' do |user, branch|
+desc "Generate a pull request to target owner and branch."
+usage "github pull-request [user] [branch] [title] [comment]"
+usage "github pull-request [user]"
+usage "github pull-request [user]/[branch]"
+command :'pull-request' do |user, branch, title, comment|
   if helper.project
     die "Specify a user for the pull request" if user.nil?
     user, branch = user.split('/', 2) if branch.nil?
     branch ||= 'master'
+    title    = helper.get_first_commit_message || "Commit" if title.nil?
+    comment  = title if comment.nil?
     GitHub.invoke(:track, user) unless helper.tracking?(user)
 
-    git_exec "request-pull #{user}/#{branch} #{helper.origin}"
+    sh "curl -F 'login=#{github_user}' -F 'token=#{github_token}' -F \"pull[base]=#{branch}\" -F \"pull[head]=#{user}:#{helper.branch_name}\" -F \"pull[title]=#{title}\" -F \"pull[body]=#{comment}\" https://github.com/api/v2/json/pulls/#{user}/#{helper.project}"
   end
 end
 
