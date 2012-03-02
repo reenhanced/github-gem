@@ -3,6 +3,11 @@ module CommandHelper
     Runner.new(self, cmd, *args, &block).run
   end
 
+  def running_twice(cmd, *args, &block)
+    @first_run = true
+    Runner.new(self, cmd, *args, &block).run_twice
+  end
+
   class Runner
     include SetupMethods
 
@@ -25,6 +30,37 @@ module CommandHelper
       args = @args.clone
       GitHub.parse_options(args) # strip out the flags
       GitHub.should_receive(:invoke).with(@cmd_name, *args).and_return do
+        GitHub.send(GitHub.send(:__mock_proxy).send(:munge, :invoke), @cmd_name, *args)
+      end
+      invoke = lambda { GitHub.activate([@cmd_name, *@args]) }
+      if @expected_result
+        expectation, result = @expected_result
+        case result
+        when Spec::Matchers::RaiseException, Spec::Matchers::Change, Spec::Matchers::ThrowSymbol
+          invoke.send expectation, result
+        else
+          invoke.call.send expectation, result
+        end
+      else
+        invoke.call
+      end
+      @stdout_mock.invoke unless @stdout_mock.nil?
+      @stderr_mock.invoke unless @stderr_mock.nil?
+    end
+
+    def run_twice
+      2.times do
+        self.instance_eval &@block
+        @first_run = false
+      end
+      mock_remotes unless @remotes.nil?
+      GitHub.should_receive(:load).twice.with(GitHub::BasePath + "/commands/commands.rb")
+      GitHub.should_receive(:load).twice.with(GitHub::BasePath + "/commands/helpers.rb")
+      GitHub.should_receive(:load).twice.with(GitHub::BasePath + "/commands/network.rb")
+      GitHub.should_receive(:load).twice.with(GitHub::BasePath + "/commands/issues.rb")
+      args = @args.clone
+      GitHub.parse_options(args) # strip out the flags
+      GitHub.should_receive(:invoke).twice.with(@cmd_name, *args).and_return do
         GitHub.send(GitHub.send(:__mock_proxy).send(:munge, :invoke), @cmd_name, *args)
       end
       invoke = lambda { GitHub.activate([@cmd_name, *@args]) }

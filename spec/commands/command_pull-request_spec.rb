@@ -24,18 +24,16 @@ describe "github pull-request" do
   end
 
   specify "pull-request user should notify if pull request already exists" do
-    running :'pull-request', "user" do
-      setup_github_token
-      setup_url_for "origin", "user", "github-gem"
-      setup_remote "origin", :user => "user", :project => "github-gem"
-      setup_user_and_branch "user", "branch"
-      @helper.should_receive(:get_first_commit_message)
-      @command.should_receive(:sh).with("curl -F 'login=drnic' -F 'token=MY_GITHUB_TOKEN' -F \"pull[base]=master\" -F \"pull[head]=user:branch\" -F \"pull[title]=Commit\" -F \"pull[body]=Commit\" https://github.com/api/v2/json/pulls/user/github-gem")
-      running :'pull-request', "user" do
-        @helper.should_receive(:get_first_commit_message)
-        @command.should_receive(:sh).with("curl -F 'login=drnic' -F 'token=MY_GITHUB_TOKEN' -F \"pull[base]=master\" -F \"pull[head]=user:branch\" -F \"pull[title]=Commit\" -F \"pull[body]=Commit\" https://github.com/api/v2/json/pulls/user/github-gem")
-        @command.stdout.should == "A pull request already exists for user:branch"
+    running_twice :'pull-request', "user" do
+      if @first_run
+        setup_github_token
+        setup_url_for "origin", "user", "github-gem"
+        setup_remote "origin", :user => "user", :project => "github-gem"
+        setup_user_and_branch "user", "branch"
       end
+      @helper.should_receive(:get_first_commit_message).twice
+      #@command.should_receive(:sh).with("curl -F 'login=drnic' -F 'token=MY_GITHUB_TOKEN' -F \"pull[base]=master\" -F \"pull[head]=user:branch\" -F \"pull[title]=Commit\" -F \"pull[body]=Commit\" https://github.com/api/v2/json/pulls/user/github-gem")
+      stdout.should == "Error: A pull request already exists for user:branch"
     end
   end
 
