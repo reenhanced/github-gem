@@ -74,7 +74,7 @@ describe "github issues" do
       options[:created_at] = 10.hours.ago
       options[:user]       = "user"
       options[:project]    = "project"
-      yaml = <<-YAML.gsub(/^    /, '')
+      yaml = <<-YAML
       --- 
       issues: 
       - number: 1
@@ -90,6 +90,7 @@ describe "github issues" do
 
         state: #{state}
       YAML
+      yaml = yaml.split("\n").map {|l| l.gsub(/^      /, '')}.join("\n")
       api_url = "https://github.com/api/v2/yaml/issues/list/#{options[:user]}/#{options[:project]}/#{state}"
       @command.should_receive(:open).with(api_url).and_return(yaml)
     end
