@@ -21,6 +21,7 @@ Available commands:
                        --textile : Create README.textile
   create-from-local => Create a new GitHub repository from the current local
                        repository
+                       % github create-from-local [repo_name]
                        --private: Create private repository
   fetch             => Fetch from a remote to a local branch.
   fetch_all         => Fetch all refs from a user
@@ -58,8 +59,10 @@ Available commands:
                        % github pull [user] [branch]
                        --merge: Automatically merge remote's changes into your
                          master.
-  pull-request      => Generate the text for a pull request.
-                       % github pull-request [user] [branch]
+  pull-request      => Generate a pull request to target owner and branch.
+                       % github pull-request [user] [branch] [title] [comment]
+                       % github pull-request [user]
+                       % github pull-request [user]/[branch]
   search            => Search GitHub for the given repository name.
                        % github search [query]
   track             => Track another user's repository.
