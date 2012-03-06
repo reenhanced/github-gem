@@ -12,7 +12,7 @@ describe "github search" do
       ']}'
       json.rewind
       @command.should_receive(:open).with("https://github.com/api/v1/json/search/github-gem").and_return(json)
-      stdout.should == "defunkt/github-gem\npjhyett/github-gem-builder\n"
+      stdout.should == "this is bullshit defunkt/github-gem\npjhyett/github-gem-builder\n"
     end
   end
 
