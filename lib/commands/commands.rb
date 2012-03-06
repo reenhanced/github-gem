@@ -185,6 +185,14 @@ command :'pull-request' do |user, branch, title, comment|
     GitHub.invoke(:track, user) unless helper.tracking?(user)
 
     pull_request = sh "curl -F 'login=#{github_user}' -F 'token=#{github_token}' -F \"pull[base]=#{branch}\" -F \"pull[head]=#{user}:#{helper.branch_name}\" -F \"pull[title]=#{title}\" -F \"pull[body]=#{comment}\" https://github.com/api/v2/json/pulls/#{user}/#{helper.project}"
+
+    output = JSON.parse(pull_request.out) unless pull_request.out.nil?
+    unless output.nil?
+      puts output['error'].join("\n")
+      puts output.inspect
+    else
+      puts "Successfully created pull request: "
+    end
   end
 end
 
