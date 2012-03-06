@@ -3,6 +3,11 @@ module CommandHelper
     Runner.new(self, cmd, *args, &block).run
   end
 
+  def running_twice(cmd, *args, &block)
+    @first_run = true
+    Runner.new(self, cmd, *args, &block).run_twice
+  end
+
   class Runner
     include SetupMethods
 
