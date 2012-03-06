@@ -189,6 +189,7 @@ command :'pull-request' do |user, branch, title, comment|
     output = JSON.parse(pull_request.out) unless pull_request.out.nil?
     unless output.nil?
       puts output['error'].join("\n")
+      puts output.inspect
     else
       puts "Successfully created pull request: "
     end
