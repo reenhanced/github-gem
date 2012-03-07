@@ -30,7 +30,7 @@ describe "github pull-request" do
       setup_remote "origin", :user => "user", :project => "github-gem"
       setup_user_and_branch "user", "branch"
       @helper.should_receive(:get_first_commit_message)
-      @command.stub!(:sh).and_return("this is even more bullshit Error: A pull request already exists for user:branch")
+      @command.stub!(:sh).and_return("Error: A pull request already exists for user:branch")
       #@command.should_receive(:sh).with("curl -F 'login=drnic' -F 'token=MY_GITHUB_TOKEN' -F \"pull[base]=master\" -F \"pull[head]=user:branch\" -F \"pull[title]=Commit\" -F \"pull[body]=Commit\" https://github.com/api/v2/json/pulls/user/github-gem")
       stdout.should == "Error: A pull request already exists for user:branch"
     end

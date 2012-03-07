@@ -186,7 +186,7 @@ command :'pull-request' do |user, branch, title, comment|
 
     pull_request = sh "curl -F 'login=#{github_user}' -F 'token=#{github_token}' -F \"pull[base]=#{branch}\" -F \"pull[head]=#{user}:#{helper.branch_name}\" -F \"pull[title]=#{title}\" -F \"pull[body]=#{comment}\" https://github.com/api/v2/json/pulls/#{user}/#{helper.project}"
 
-    data = JSON.parse(pull_request.out) unless pull_request.out.nil?
+    data = JSON.parse(pull_request.out) unless pull_request.nil? || pull_request.is_a?(String)
     if data.is_a?(Hash) and !data.keys.empty?
       if data.keys.include?('error')
         puts data['error'].join("\n")
@@ -194,14 +194,12 @@ command :'pull-request' do |user, branch, title, comment|
         # Build the output from the pull-request response
         pull_url = data['pull']['html_url']
         output = "Successfully created pull request ##{data['pull']['number']}: #{data['pull']['title']}\n"
-        output << "Opening URL: #{pull_url}\n"
-        puts output
-        sh "open #{pull_url.to_s}"
+        output << "Pull Request URL: #{pull_url}\n"
       else
         puts "Unexpected response from GitHub: #{data.inspect}"
       end
-    else
-      puts "Unexpected response from GitHub: No Data"
+    elsif pull_request.is_a?(String)
+      puts pull_request
     end
   end
 end
