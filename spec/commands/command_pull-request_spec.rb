@@ -31,19 +31,19 @@ describe "github pull-request" do
       setup_user_and_branch "user", "branch"
       @helper.should_receive(:get_first_commit_message)
       @command.stub!(:sh).and_return("Error: A pull request already exists for user:branch")
-      #@command.should_receive(:sh).with("curl -F 'login=drnic' -F 'token=MY_GITHUB_TOKEN' -F \"pull[base]=master\" -F \"pull[head]=user:branch\" -F \"pull[title]=Commit\" -F \"pull[body]=Commit\" https://github.com/api/v2/json/pulls/user/github-gem")
       stdout.should == "Error: A pull request already exists for user:branch"
     end
   end
 
   specify "pull-request user should notify if pull request was successfull" do
     running :'pull-request', "user" do
-      setup_url_for
-      setup_remote :origin, :user => "kballard"
-      setup_remote :defunkt
+      setup_github_token
+      setup_url_for "origin", "user", "github-gem"
+      setup_remote "origin", :user => "user", :project => "github-gem"
+      setup_user_and_branch "user", "branch"
       @helper.should_receive(:get_first_commit_message).once
-      GitHub.should_receive(:invoke).with(:track, "user").and_return { raise "Tracked" }
-      self.should raise_error("Tracked")
+      @command.should_receive(:sh).with("curl -F 'login=drnic' -F 'token=MY_GITHUB_TOKEN' -F \"pull[base]=master\" -F \"pull[head]=user:branch\" -F \"pull[title]=Commit\" -F \"pull[body]=Commit\" https://github.com/api/v2/json/pulls/user/github-gem")
+      stdout.should == "Successfully created pull request #1: Commit\nPull Request URL: https://github.com/user/github-gem/pulls/1\n"
     end
   end
 

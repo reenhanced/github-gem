@@ -191,7 +191,6 @@ command :'pull-request' do |user, branch, title, comment|
       if data.keys.include?('error')
         puts data['error'].join("\n")
       elsif data.keys.include?('pull')
-        # Build the output from the pull-request response
         pull_url = data['pull']['html_url']
         output = "Successfully created pull request ##{data['pull']['number']}: #{data['pull']['title']}\n"
         output << "Pull Request URL: #{pull_url}\n"
