@@ -172,14 +172,34 @@ command :clone do |user, repo, dir|
 end
 
 desc "Generate a pull request to target owner and branch."
-usage "github pull-request [user] [branch] [title] [initial comment]"
+usage "github pull-request [user] [branch] [title] [comment]"
+usage "github pull-request [user]"
+usage "github pull-request [user]/[branch]"
 command :'pull-request' do |user, branch, title, comment|
   if helper.project
-    puts "not enough arguments" if user.nil? || branch.nil? || title.nil? || comment.nil?
-    current_branch = sh "git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'"
-    sh "curl -F 'login=#{github_user}' -F 'token=#{github_token}' -d \"pull[base]=#{branch}\" -d \"pull[head]=#{github_user}:#{current_branch}\" -d \"pull[title]=#{title}\" -d \"pull[body]=#{comment}\" https://github.com/api/v2/json/pulls/#{user}/#{helper.project}"
-  else
-    puts "no project"
+    die "Specify a user for the pull request" if user.nil?
+    user, branch = user.split('/', 2) if branch.nil?
+    branch ||= 'master'
+    title    = helper.get_first_commit_message || "Commit" if title.nil?
+    comment  = title if comment.nil?
+    GitHub.invoke(:track, user) unless helper.tracking?(user)
+
+    pull_request = sh "curl -F 'login=#{github_user}' -F 'token=#{github_token}' -F \"pull[base]=#{branch}\" -F \"pull[head]=#{user}:#{helper.branch_name}\" -F \"pull[title]=#{title}\" -F \"pull[body]=#{comment}\" https://github.com/api/v2/json/pulls/#{user}/#{helper.project}"
+
+    data = JSON.parse(pull_request.out) unless pull_request.nil? || pull_request.is_a?(String)
+    if data.is_a?(Hash) and !data.keys.empty?
+      if data.keys.include?('error')
+        puts data['error'].join("\n")
+      elsif data.keys.include?('pull')
+        pull_url = data['pull']['html_url']
+        output = "Successfully created pull request ##{data['pull']['number']}: #{data['pull']['title']}\n"
+        output << "Pull Request URL: #{pull_url}\n"
+      else
+        puts "Unexpected response from GitHub: #{data.inspect}"
+      end
+    elsif pull_request.is_a?(String)
+      puts pull_request
+    end
   end
 end
 
